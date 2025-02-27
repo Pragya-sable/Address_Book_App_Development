@@ -18,24 +18,26 @@ public class ContactController {
     }
     // GET All Contacts
     @GetMapping
-    public ResponseEntity<List<ContactDTO>> getAllContacts() {
+    public ResponseEntity<List<Contact>> getAllContacts() {
         return ResponseEntity.ok(service.getAllContacts());
     }
 
     // GET Contact by ID
     @GetMapping("/{id}")
-    public ResponseEntity<ContactDTO> getContact(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getContactById(id));
+    public ResponseEntity<Contact> getContact(@PathVariable Long id) {
+        return service.getContactById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<ContactDTO> addContact(@RequestBody ContactDTO contactDTO){
-        return ResponseEntity.ok(service.addContact(contactDTO));
+    public ResponseEntity<Contact> addContact(@RequestBody Contact contact){
+        return ResponseEntity.ok(service.addContact(contact));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ContactDTO> updateContact(@PathVariable Long id, @RequestBody ContactDTO contactDTO){
-        return ResponseEntity.ok(service.updateContact(id,contactDTO));
+    public ResponseEntity<Contact> updateContact(@PathVariable Long id, @RequestBody Contact contact){
+        return ResponseEntity.ok(service.updateContact(id,contact));
     }
 
     @DeleteMapping("/{id}")
