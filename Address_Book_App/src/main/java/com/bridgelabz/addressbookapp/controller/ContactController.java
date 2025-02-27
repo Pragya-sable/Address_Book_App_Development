@@ -2,6 +2,7 @@ package com.bridgelabz.addressbookapp.controller;
 
 import com.bridgelabz.addressbookapp.model.Contact;
 import com.bridgelabz.addressbookapp.service.ContactService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,28 +16,29 @@ public class ContactController {
         this.service = service;
     }
 
+    // GET All Contacts
     @GetMapping
-    public List<Contact>getAllContacts(){
-        return service.getAllContacts();
+    public ResponseEntity<List<Contact>> getAllContacts() {
+        return ResponseEntity.ok(service.getAllContacts());
     }
-
     @GetMapping("/{id}")
-    public Contact getContact(@PathVariable Long id){
-        return service.getContactById(id);
+    public ResponseEntity<Contact> getContact(@PathVariable Long id){
+        return ResponseEntity.ok(service.getContactById(id));
     }
 
     @PostMapping
-    public Contact addContact(@RequestBody Contact contact){
-        return service.addContact(contact);
+    public ResponseEntity<Contact> addContact(@RequestBody Contact contact){
+        return ResponseEntity.ok(service.addContact(contact));
     }
 
     @PutMapping("/{id}")
-    public Contact updateContact(@PathVariable Long id, @RequestBody Contact contact){
-        return service.updatrContact(id,contact);
+    public ResponseEntity<Contact> updateContact(@PathVariable Long id, @RequestBody Contact contact){
+        return ResponseEntity.ok(service.updatrContact(id,contact));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteContact(@PathVariable Long id){
+    public ResponseEntity<String> deleteContact(@PathVariable Long id) {
         service.deleteContact(id);
+        return ResponseEntity.ok("Contact deleted successfully");
     }
 }
