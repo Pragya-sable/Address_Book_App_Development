@@ -1,5 +1,6 @@
 package com.bridgelabz.addressbookapp.controller;
 
+import com.bridgelabz.addressbookapp.dto.ContactDTO;
 import com.bridgelabz.addressbookapp.model.Contact;
 import com.bridgelabz.addressbookapp.service.ContactService;
 import org.springframework.http.ResponseEntity;
@@ -15,25 +16,26 @@ public class ContactController {
     public ContactController(ContactService service){
         this.service = service;
     }
-
     // GET All Contacts
     @GetMapping
-    public ResponseEntity<List<Contact>> getAllContacts() {
+    public ResponseEntity<List<ContactDTO>> getAllContacts() {
         return ResponseEntity.ok(service.getAllContacts());
     }
+
+    // GET Contact by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Contact> getContact(@PathVariable Long id){
+    public ResponseEntity<ContactDTO> getContact(@PathVariable Long id) {
         return ResponseEntity.ok(service.getContactById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Contact> addContact(@RequestBody Contact contact){
-        return ResponseEntity.ok(service.addContact(contact));
+    public ResponseEntity<ContactDTO> addContact(@RequestBody ContactDTO contactDTO){
+        return ResponseEntity.ok(service.addContact(contactDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Contact> updateContact(@PathVariable Long id, @RequestBody Contact contact){
-        return ResponseEntity.ok(service.updatrContact(id,contact));
+    public ResponseEntity<ContactDTO> updateContact(@PathVariable Long id, @RequestBody ContactDTO contactDTO){
+        return ResponseEntity.ok(service.updateContact(id,contactDTO));
     }
 
     @DeleteMapping("/{id}")
