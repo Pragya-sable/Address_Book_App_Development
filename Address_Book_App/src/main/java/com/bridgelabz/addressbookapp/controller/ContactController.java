@@ -1,8 +1,8 @@
 package com.bridgelabz.addressbookapp.controller;
 
-import com.bridgelabz.addressbookapp.dto.ContactDTO;
 import com.bridgelabz.addressbookapp.model.Contact;
 import com.bridgelabz.addressbookapp.service.ContactService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,11 +11,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/contacts")
 public class ContactController {
-    private final ContactService service;
+    @Autowired
+    private ContactService service;
 
-    public ContactController(ContactService service){
-        this.service = service;
-    }
     // GET All Contacts
     @GetMapping
     public ResponseEntity<List<Contact>> getAllContacts() {
@@ -30,16 +28,19 @@ public class ContactController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // POST - Add a Contact
     @PostMapping
-    public ResponseEntity<Contact> addContact(@RequestBody Contact contact){
+    public ResponseEntity<Contact> addContact(@RequestBody Contact contact) {
         return ResponseEntity.ok(service.addContact(contact));
     }
 
+    // PUT - Update Contact by ID
     @PutMapping("/{id}")
-    public ResponseEntity<Contact> updateContact(@PathVariable Long id, @RequestBody Contact contact){
-        return ResponseEntity.ok(service.updateContact(id,contact));
+    public ResponseEntity<Contact> updateContact(@PathVariable Long id, @RequestBody Contact contact) {
+        return ResponseEntity.ok(service.updateContact(id, contact));
     }
 
+    // DELETE - Remove Contact by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteContact(@PathVariable Long id) {
         service.deleteContact(id);
