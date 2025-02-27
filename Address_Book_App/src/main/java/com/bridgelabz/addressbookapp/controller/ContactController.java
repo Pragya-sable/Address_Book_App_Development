@@ -1,49 +1,59 @@
 package com.bridgelabz.addressbookapp.controller;
 
+import com.bridgelabz.addressbookapp.dto.ContactDTO;
 import com.bridgelabz.addressbookapp.model.Contact;
 import com.bridgelabz.addressbookapp.service.ContactService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+import java.util.Optional;
+@Slf4j
 @RestController
 @RequestMapping("/api/contacts")
 public class ContactController {
     @Autowired
-    private ContactService service;
+    private ContactService contactService;
 
-    // GET All Contacts
+    //  GET all contacts
     @GetMapping
     public ResponseEntity<List<Contact>> getAllContacts() {
-        return ResponseEntity.ok(service.getAllContacts());
+        log.info("Received request to fetch all contacts");
+        return ResponseEntity.ok(contactService.getAllContacts());
     }
 
-    // GET Contact by ID
+    //  GET contact by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Contact> getContact(@PathVariable Long id) {
-        return service.getContactById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Contact> getContactById(@PathVariable Long id) {
+        log.info("Received request to fetch contact with ID: {}", id);
+        Optional<Contact> contact = contactService.getContactById(id);
+        return contact.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - Add a Contact
+    // POST - Add a new contact
     @PostMapping
-    public ResponseEntity<Contact> addContact(@RequestBody Contact contact) {
-        return ResponseEntity.ok(service.addContact(contact));
+    public ResponseEntity<Contact> addContact(@RequestBody ContactDTO contactDTO) {
+        log.info("Received request to add new contact: {}", contactDTO);
+        Contact savedContact = contactService.addContact(contactDTO);
+        return ResponseEntity.ok(savedContact);
     }
 
-    // PUT - Update Contact by ID
+    // PUT - Update contact by ID
     @PutMapping("/{id}")
-    public ResponseEntity<Contact> updateContact(@PathVariable Long id, @RequestBody Contact contact) {
-        return ResponseEntity.ok(service.updateContact(id, contact));
+    public ResponseEntity<Contact> updateContact(@PathVariable Long id, @RequestBody ContactDTO contactDTO) {
+        log.info("Received request to update contact with ID: {}", id);
+        Contact updatedContact = contactService.updateContact(id, contactDTO);
+        return ResponseEntity.ok(updatedContact);
     }
 
-    // DELETE - Remove Contact by ID
+    //  DELETE - Remove contact by ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteContact(@PathVariable Long id) {
-        service.deleteContact(id);
-        return ResponseEntity.ok("Contact deleted successfully");
+    public ResponseEntity<Void> deleteContact(@PathVariable Long id) {
+        log.warn("Received request to delete contact with ID: {}", id);
+        contactService.deleteContact(id);
+        return ResponseEntity.noContent().build();
     }
 }

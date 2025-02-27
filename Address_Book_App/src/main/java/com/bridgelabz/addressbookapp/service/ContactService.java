@@ -1,51 +1,62 @@
 package com.bridgelabz.addressbookapp.service;
 
+import com.bridgelabz.addressbookapp.dto.ContactDTO;
 import com.bridgelabz.addressbookapp.model.Contact;
-import java.util.ArrayList;
+import com.bridgelabz.addressbookapp.repository.ContactRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
+
+@Slf4j   // Lombok annotation to enable logging
 @Service
 public class ContactService {
-    private final List<Contact> contactList = new ArrayList<>();
-    private final AtomicLong idCounter = new AtomicLong(1); // Simulates auto-increment ID
+    @Autowired
+    private ContactRepository contactRepository;
 
     // GET all contacts
     public List<Contact> getAllContacts() {
-        return contactList;
+        log.info("Fetching all contacts from the database");
+        return contactRepository.findAll();
     }
 
     // GET contact by ID
     public Optional<Contact> getContactById(Long id) {
-        return contactList.stream().filter(c -> c.getId().equals(id)).findFirst();
+        log.debug("Fetching contact with ID: {}", id);
+        return contactRepository.findById(id);
     }
 
     // POST - Add a contact
-    public Contact addContact(Contact contact) {
-        contact.setId(idCounter.getAndIncrement()); // Simulate ID generation
-        contactList.add(contact);
-        return contact;
+    public Contact addContact(ContactDTO contactDTO) {
+        Contact contact = new Contact(null, contactDTO.getName(), contactDTO.getEmail(),
+                contactDTO.getPhone(), contactDTO.getAddress());
+        Contact savedContact = contactRepository.save(contact);
+        log.info("New contact added: {}", savedContact);
+        return savedContact;
     }
 
     // PUT - Update a contact by ID
-    public Contact updateContact(Long id, Contact contactDetails) {
-        Optional<Contact> optionalContact = getContactById(id);
-        if (optionalContact.isPresent()) {
-            Contact existingContact = optionalContact.get();
-            existingContact.setName(contactDetails.getName());
-            existingContact.setEmail(contactDetails.getEmail());
-            existingContact.setPhone(contactDetails.getPhone());
-            existingContact.setAddress(contactDetails.getAddress());
-            return existingContact;
-        } else {
-            throw new RuntimeException("Contact not found");
-        }
+    public Contact updateContact(Long id, ContactDTO contactDTO) {
+        log.debug("Updating contact with ID: {}", id);
+        return contactRepository.findById(id).map(existingContact -> {
+            existingContact.setName(contactDTO.getName());
+            existingContact.setEmail(contactDTO.getEmail());
+            existingContact.setPhone(contactDTO.getPhone());
+            existingContact.setAddress(contactDTO.getAddress());
+            log.info("Updated contact: {}", existingContact);
+            return contactRepository.save(existingContact);
+        }).orElseThrow(() -> {
+            log.error("Contact with ID {} not found!", id);
+            return new RuntimeException("Contact not found!");
+        });
     }
 
-    // DELETE - Remove contact by ID
+    // DELETE - Remove a contact by ID
     public void deleteContact(Long id) {
-        contactList.removeIf(contact -> contact.getId().equals(id));
+        log.warn("Deleting contact with ID: {}", id);
+        contactRepository.deleteById(id);
     }
+
 }
